@@ -2,15 +2,25 @@ import styled from "@emotion/styled";
 import React, { useCallback, useEffect } from "react";
 import KeyPad from "./key/keyPad";
 import { useAtom } from "jotai";
-import { boardDefault, currentValues } from "../../store/globalState/index";
+import {
+  boardDefault,
+  currentValues,
+  wordSets,
+} from "../../store/globalState/index";
 
 function KeyBoard() {
   const keys1 = ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"];
   const keys2 = ["A", "S", "D", "F", "G", "H", "J", "K", "L"];
   const keys3 = ["Z", "X", "C", "V", "B", "N", "M"];
+
+  /* 
+  boardVlaue: 디폴트보드다. 5x5 배열이다. 
+  currentValue: 현재 가리키고 있는 위치 이곳에 키패드의 값이 저장될 boardVlaue 내에서의 위치를 가리킨다.
+    -{letterPos: 가로  attemptVal: 세로}
+  wordSet: set으로 값을 저장했다. 단어 뱅크다.*/
   const [boardVlaue, setBoardValue] = useAtom(boardDefault);
   const [currentValue, setcurrentValue] = useAtom(currentValues);
-
+  const [wordSet, setWordSrt] = useAtom(wordSets);
   const handleKeyboard = useCallback((e) => {
     if (e.key === "Enter") {
       answerCheck();
@@ -39,7 +49,21 @@ function KeyBoard() {
     if (currentValue.letterPos < 4) {
       alert("총 5개의 알파벳이 필요합니다.");
     }
-    setcurrentValue({ letterPos: 0, attemptVal: currentValue.attemptVal + 1 });
+    // currword는 비어있으며 값을 하나씩 추가 하는 식으로 단어를 구성한다.
+    let currword = "";
+    for (let i = 0; i < 5; i++) {
+      currword += boardVlaue[i][currentValue.attemptVal];
+    }
+    //has란 뭘까? has() 메서드는 Set 객체에 주어진 요소가 존재하는지 여부를 판별해 반환합니다.
+
+    if (wordSet.has(currword.toLocaleLowerCase())) {
+      setcurrentValue({
+        letterPos: 0,
+        attemptVal: currentValue.attemptVal + 1,
+      });
+    } else {
+      alert("단어를 찾을 수 없어");
+    }
   };
 
   const onselect = (keyVlaue) => {

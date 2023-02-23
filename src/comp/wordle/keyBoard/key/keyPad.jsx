@@ -4,7 +4,6 @@ import { useAtom } from "jotai";
 import {
   boardDefault,
   currentValues,
-  corrects,
   wordSets,
 } from "../../../store/globalState";
 
@@ -19,7 +18,7 @@ function KeyPad(props) {
   const { keyVlaue, bigkey } = props;
   const [boardVlaue, setBoardValue] = useAtom(boardDefault);
   const [currentValue, setcurrentValue] = useAtom(currentValues);
-  const [correct] = useAtom(corrects);
+
   const [wordSet, setWordSrt] = useAtom(wordSets);
   const [backColor, setBackColor] = useState("grey");
 
@@ -46,7 +45,7 @@ function KeyPad(props) {
     for (let i = 0; i < 5; i++) {
       currword += boardVlaue[i][currentValue.attemptVal];
     }
-    console.log(currword);
+    //has() 메서드는 Set 객체에 주어진 요소가 존재하는지 여부를 판별해 반환합니다.
     if (wordSet.has(currword.toLocaleLowerCase())) {
       setcurrentValue({
         letterPos: 0,
