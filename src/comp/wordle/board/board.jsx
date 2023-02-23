@@ -52,6 +52,7 @@ const Boards = styled.div`
   border: 1px solid black;
   display: flex;
   flex-direction: column;
+  margin-top: 30px;
 `;
 
 const Row = styled.div`

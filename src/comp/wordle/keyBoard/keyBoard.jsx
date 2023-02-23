@@ -6,6 +6,11 @@ import {
   boardDefault,
   currentValues,
   wordSets,
+  corrects,
+  disabledLetters,
+  gameOvers,
+  almostLetters,
+  correctLetters,
 } from "../../store/globalState/index";
 
 function KeyBoard() {
@@ -16,11 +21,22 @@ function KeyBoard() {
   /* 
   boardVlaue: 디폴트보드다. 5x5 배열이다. 
   currentValue: 현재 가리키고 있는 위치 이곳에 키패드의 값이 저장될 boardVlaue 내에서의 위치를 가리킨다.
-    -{letterPos: 가로  attemptVal: 세로}
-  wordSet: set으로 값을 저장했다. 단어 뱅크다.*/
+   -{letterPos: 가로  attemptVal: 세로}
+  wordSet: set으로 값을 저장했다. 단어 뱅크다.
+  disabledLetter: 판별된 단어 중 "error"에 속하는 단어를 모아주는 Arry
+  almostLetter: 판별된 단어 중 "alost"에 속하는 단어를 모아주는 Arry
+  correctLetter: 판별된 단어 중 "correct"에 속하는 단어를 모아주는 Arry
+  gameOver: 게임의 승패 판단
+  */
   const [boardVlaue, setBoardValue] = useAtom(boardDefault);
   const [currentValue, setcurrentValue] = useAtom(currentValues);
   const [wordSet, setWordSrt] = useAtom(wordSets);
+  const [correct] = useAtom(corrects);
+  const [disabledLetter, setDisabledLetters] = useAtom(disabledLetters);
+  const [almostLetter, setAlmostLetter] = useAtom(almostLetters);
+  const [correctLetter, setCorrectLetters] = useAtom(correctLetters);
+  const [gameOver, setGameover] = useAtom(gameOvers);
+
   const handleKeyboard = useCallback((e) => {
     if (e.key === "Enter") {
       answerCheck();
@@ -48,14 +64,13 @@ function KeyBoard() {
   const answerCheck = () => {
     if (currentValue.letterPos < 4) {
       alert("총 5개의 알파벳이 필요합니다.");
+      return;
     }
-    // currword는 비어있으며 값을 하나씩 추가 하는 식으로 단어를 구성한다.
     let currword = "";
     for (let i = 0; i < 5; i++) {
       currword += boardVlaue[i][currentValue.attemptVal];
     }
-    //has란 뭘까? has() 메서드는 Set 객체에 주어진 요소가 존재하는지 여부를 판별해 반환합니다.
-
+    //has() 메서드는 Set 객체에 주어진 요소가 존재하는지 여부를 판별해 반환합니다.
     if (wordSet.has(currword.toLocaleLowerCase())) {
       setcurrentValue({
         letterPos: 0,
@@ -63,6 +78,12 @@ function KeyBoard() {
       });
     } else {
       alert("단어를 찾을 수 없어");
+      return;
+    }
+    if (correct === currword) {
+      setGameover({ gameOver: true, win: true });
+    } else if (currentValue.attemptVal === 4) {
+      setGameover({ gameOver: true, win: false });
     }
   };
 
@@ -103,18 +124,45 @@ function KeyBoard() {
     <KeyBoardDiv onKeyDown={handleKeyboard}>
       <Line1>
         {keys1.map((keys) => {
-          return <KeyPad key={keys} keyVlaue={keys} bigkey={"false"} />;
+          return (
+            <KeyPad
+              key={keys}
+              keyVlaue={keys}
+              bigkey={"false"}
+              disabledLetter={disabledLetter.includes(keys)}
+              almostLetter={almostLetter.includes(keys)}
+              correctLetter={correctLetter.includes(keys)}
+            />
+          );
         })}
       </Line1>
       <Line2>
         {keys2.map((keys) => {
-          return <KeyPad key={keys} keyVlaue={keys} bigkey={"false"} />;
+          return (
+            <KeyPad
+              key={keys}
+              keyVlaue={keys}
+              bigkey={"false"}
+              disabledLetter={disabledLetter.includes(keys)}
+              almostLetter={almostLetter.includes(keys)}
+              correctLetter={correctLetter.includes(keys)}
+            />
+          );
         })}
       </Line2>
       <Line3>
         <KeyPad keyVlaue={"Enter"} bigkey={"ture"} />
         {keys3.map((keys) => {
-          return <KeyPad key={keys} keyVlaue={keys} bigkey={"false"} />;
+          return (
+            <KeyPad
+              key={keys}
+              keyVlaue={keys}
+              bigkey={"false"}
+              disabledLetter={disabledLetter.includes(keys)}
+              almostLetter={almostLetter.includes(keys)}
+              correctLetter={correctLetter.includes(keys)}
+            />
+          );
         })}
         <KeyPad keyVlaue={"Deleter"} bigkey={"ture"} />
       </Line3>

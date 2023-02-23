@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { useAtom } from "jotai";
 import {
   boardDefault,
   currentValues,
   wordSets,
+  corrects,
+  gameOvers,
 } from "../../../store/globalState";
 
 function KeyPad(props) {
@@ -14,13 +16,32 @@ function KeyPad(props) {
   boardVlaue: 디폴트보드를 저장히기 위한 아톰 즉 여기에 저장된 값은 출력된다.
   currentValue: 현재 가리키고 있는 위치 이곳에 키패드의 값이 저장될 boardVlaue 내에서의 위치를 가리킨다.
   correct:정답
+  gameOver: 게임에 이겼는지 졌는지 판단
   */
-  const { keyVlaue, bigkey } = props;
+  const { keyVlaue, bigkey, disabledLetter, almostLetter, correctLetter } =
+    props;
   const [boardVlaue, setBoardValue] = useAtom(boardDefault);
   const [currentValue, setcurrentValue] = useAtom(currentValues);
-
+  const [correct] = useAtom(corrects);
   const [wordSet, setWordSrt] = useAtom(wordSets);
-  const [backColor, setBackColor] = useState("grey");
+  const [gameOver, setGameover] = useAtom(gameOvers);
+  const [padColor, setPadColor] = useState("gray");
+
+  useEffect(() => {
+    if (correctLetter === true) {
+      setPadColor("#528d4e");
+      return;
+    } else if (almostLetter === true) {
+      setPadColor("#b49f39");
+      return;
+    } else if (disabledLetter === true) {
+      setPadColor("#3a393c");
+      return;
+    } else {
+      setPadColor("gray");
+      return;
+    }
+  }, [almostLetter, correctLetter, disabledLetter]);
 
   //키 패드가 눌렸을 때 동작이다
   const selecLetter = () => {
@@ -53,22 +74,13 @@ function KeyPad(props) {
       });
     } else {
       alert("단어를 찾을 수 없어");
+      return;
     }
-    // correct.map((correctLetter, index) => {
-    //   if (correctLetter) {
-    //     for (let i = 0; i <= 4; i++) {
-    //       if (boardVlaue[i][currentValue.attemptVal] === correctLetter) {
-    //         if (i === index) {
-    //           //  일단 맞고 그 위치까지 찾아냄 setBackColor("#528d4e");
-    //           console.log(correctLetter);
-    //         } else {
-    //           // 맞지만 랭스가 다름 setBackColor("#b49f39");
-    //           console.log();
-    //         }
-    //       }
-    //     }
-    //   }
-    // });
+    if (correct === currword) {
+      setGameover({ gameOver: true, win: true });
+    } else if (currentValue.attemptVal === 4) {
+      setGameover({ gameOver: true, win: false });
+    }
   };
   // 삭제버튼
   const deleteFuntion = () => {
@@ -97,7 +109,14 @@ function KeyPad(props) {
   };
 
   return (
-    <Key bigkey={bigkey} backColor={backColor} onClick={selecLetter}>
+    <Key
+      bigkey={bigkey}
+      padColor={padColor}
+      disabledLetter={disabledLetter}
+      almostLetter={almostLetter}
+      correctLetter={correctLetter}
+      onClick={selecLetter}
+    >
       {keyVlaue}
     </Key>
   );
@@ -111,7 +130,7 @@ const Key = styled.div`
   display: grid;
   place-items: center;
   font-size: 20px;
-  background-color: ${(props) => props.backColor};
+  background-color: ${(props) => props.padColor};
   color: white;
   font-family: Arial, Helvetica, sans-serif;
   cursor: pointer;
